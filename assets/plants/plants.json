@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "plants": [
+    {
+      "id": "bean",
+      "name": "绿豆芽",
+      "totalDays": 7,
+      "videoUrl": "https://videos.pexels.com/video-files/30252372/12969338_3840_2160_25fps.mp4",
+      "videoDurationMs": 10000,
+      "sampleCount": 7,
+      "frameWidth": 720
+    },
+    {
+      "id": "sunflower",
+      "name": "向日葵",
+      "totalDays": 90,
+      "videoUrl": "https://cdn.example.com/plants/sunflower.mp4",
+      "videoDurationMs": 18200,
+      "sampleCount": 90,
+      "frameWidth": 720,
+      "coverUrl": "https://cdn.example.com/plants/sunflower_cover.jpg"
+    },
+    {
+      "id": "tomato",
+      "name": "番茄",
+      "totalDays": 120,
+      "videoUrl": "https://cdn.example.com/plants/tomato.mp4",
+      "sampleCount": 120,
+      "frameWidth": 720
+    },
+    {
+      "id": "oak",
+      "name": "橡树",
+      "totalDays": 300,
+      "videoUrl": "https://cdn.example.com/plants/oak.mp4",
+      "sampleCount": 120,
+      "frameWidth": 512
+    }
+  ]
+}
