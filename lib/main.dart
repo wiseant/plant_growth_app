@@ -1,9 +1,10 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 
 import 'models/plant_species.dart';
+import 'pages/plant_list_page.dart';
+import 'services/plant_frame_service.dart';
 import 'services/plant_repository.dart';
 import 'services/resource_downloader.dart';
 
@@ -94,12 +95,20 @@ class _SplashPageState extends State<SplashPage> {
 
     if (!mounted) return;
 
-    // 3) 进入主页面（阶段一：简化列表，阶段二替换为完整列表/生长页）
+    // 3) 抽帧服务登记视频路径并初始化缓存根目录
+    final frames = PlantFrameService();
+    frames.registerVideos(downloader.videoPaths);
+    await frames.init();
+
+    if (!mounted) return;
+
+    // 4) 进入正式列表页（阶段二）
     await Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (_) => PlantOverviewPage(
+        builder: (_) => PlantListPage(
           plants: plants,
           coverPaths: downloader.coverPaths,
+          frames: frames,
         ),
       ),
     );
@@ -183,90 +192,5 @@ class _SplashPageState extends State<SplashPage> {
   void dispose() {
     _sub?.cancel();
     super.dispose();
-  }
-}
-
-/// 阶段一的简化列表页：
-/// 展示各植物与已下载的封面（有则显示图片，无则占位）。
-/// 阶段二将替换为带抽帧封面与生长交互的正式列表页。
-class PlantOverviewPage extends StatelessWidget {
-  const PlantOverviewPage({
-    super.key,
-    required this.plants,
-    required this.coverPaths,
-  });
-
-  final List<PlantSpecies> plants;
-  final Map<String, String> coverPaths;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('我的植物')),
-      body: GridView.builder(
-        padding: const EdgeInsets.all(12),
-        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-          maxCrossAxisExtent: 200,
-          mainAxisSpacing: 12,
-          crossAxisSpacing: 12,
-          childAspectRatio: 0.9,
-        ),
-        itemCount: plants.length,
-        itemBuilder: (context, i) {
-          final p = plants[i];
-          return _PlantCard(plant: p, coverPath: coverPaths[p.id]);
-        },
-      ),
-    );
-  }
-}
-
-class _PlantCard extends StatelessWidget {
-  const _PlantCard({required this.plant, this.coverPath});
-
-  final PlantSpecies plant;
-  final String? coverPath;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(
-            child: coverPath != null
-                ? Image.file(
-                    File(coverPath!),
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) => _fallback(scheme),
-                  )
-                : _fallback(scheme),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(plant.name,
-                    style: Theme.of(context).textTheme.titleMedium),
-                Text('${plant.totalDays} 天',
-                    style: Theme.of(context).textTheme.bodySmall),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _fallback(ColorScheme scheme) {
-    return ColoredBox(
-      color: scheme.surfaceContainerHighest,
-      child: Center(
-        child: Icon(Icons.eco, size: 48, color: scheme.outline),
-      ),
-    );
   }
 }
